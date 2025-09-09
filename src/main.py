@@ -46,16 +46,17 @@ def check_to_input_button() -> None:
     - 버튼 입력을 10번 받았으면 종료.
     """
     # TODO: check_to_input_button 구현
-    btn = Button(18, pull_up= True)
+    btn = Button(18, pull_up=True)
 
-    count = 0
-
-    while count < 10:
-        btn.wait_for_press()
-        print("pressed")
-        btn.wait_for_release()
-        print("released")
-        count += 1
+    pressed_count = 0
+    prev = btn.is_pressed  # 현재 상태
+    while pressed_count < 10:
+        cur = btn.is_pressed 
+        if cur != prev:
+            if cur: print("pressed"); pressed_count += 1
+            else: print("released")
+            prev = cur
+        time.sleep(0.001)
 
     btn.close()
 
@@ -112,15 +113,18 @@ def receive_msg() -> None:
     - 'exit' (대소문자 무시) 라인을 수신하면 함수 종료
     """
     # TODO: blink_led_through_button 구현
-    ser = Serial("/dev/ttyAMA3", baudrate=115200, timeout=0.1)
+    ser = Serial("/dev/ttyAMA3", baudrate=115200, timeout=1.0)
 
-    msg = input()
-    if msg.lower =="exit" :
-        return 0
-    ser.write(msg.encode())
-    time.sleep(0.2)
-    ret = ser.readline().decode()
-    print(ret)
+    try:
+        while True:
+            raw = ser.read(4)
+            line = raw.decode().rstrip("\n")
+            print(line)
+            if line.lower() == "exit": 
+                break
+    finally:
+        ser.close()
+
 
     ser.close()
 
