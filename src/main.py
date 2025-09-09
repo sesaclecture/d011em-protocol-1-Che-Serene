@@ -25,8 +25,15 @@ def blink_led() -> None:
     - 종료시 LED는 OFF 상태
     """
     # TODO: blink_led 구현
+    led = LED(18)
+    for _ in range(10) :
+        led.on()
+        time.sleep(1)
+        led.off()
+        time.sleep(1)
 
-    raise NotImplementedError
+    led.close()
+#    raise NotImplementedError
 
 
 def check_to_input_button() -> None:
@@ -39,8 +46,18 @@ def check_to_input_button() -> None:
     - 버튼 입력을 10번 받았으면 종료.
     """
     # TODO: check_to_input_button 구현
+    btn = Button(18, pull_up= True)
 
-    raise NotImplementedError
+    count = 0
+
+    while count < 10:
+        btn.wait_for_press()
+        print("pressed")
+        btn.wait_for_release()
+        print("released")
+        count += 1
+
+    btn.close()
 
 
 def blink_led_through_button() -> None:
@@ -53,10 +70,22 @@ def blink_led_through_button() -> None:
     - 종료시 LED는 OFF 상태
     """
     # TODO: blink_led_through_button 구현
+    btn = Button(13, pull_up= True)
     led = LED(12)
-    led.on()
 
-    raise NotImplementedError
+    count = 0
+
+    while count < 10:
+        btn.wait_for_press()
+        led.blink(0.5, 0.5)
+        btn.wait_for_release()
+        led.off()
+        count += 1
+
+
+    btn.close()
+    led.close()
+
 
 
 def transmit_msg() -> None:
@@ -67,7 +96,14 @@ def transmit_msg() -> None:
     """
     # TODO: blink_led_through_button 구현
 
-    raise NotImplementedError
+    ser = Serial("/dev/ttyAMA3", baudrate=115200, timeout=0.1)
+
+    for i in range(0, 10) :
+        msg = f"Hello World! {i}\n"
+
+        ser.write(msg.encode())
+        time.sleep(1)
+    ser.close()
 
 
 def receive_msg() -> None:
@@ -76,8 +112,18 @@ def receive_msg() -> None:
     - 'exit' (대소문자 무시) 라인을 수신하면 함수 종료
     """
     # TODO: blink_led_through_button 구현
+    ser = Serial("/dev/ttyAMA3", baudrate=115200, timeout=0.1)
 
-    raise NotImplementedError
+    msg = input()
+    if msg.lower =="exit" :
+        return 0
+    ser.write(msg.encode())
+    time.sleep(0.2)
+    ret = ser.readline().decode()
+    print(ret)
+
+    ser.close()
+
 
 
 if __name__ == "__main__":
